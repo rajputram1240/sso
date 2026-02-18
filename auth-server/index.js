@@ -23,7 +23,17 @@ const CLIENTS = {
   "project-a": ["http://localhost:3001/sso/callback"],
 };
 
+const PRODUCTS = [
+  { code: "ASTRON_FIN", name: "Astron Financial (Project A)" },
+];
 
+const PLANS = [
+  { id: "starter", name: "Starter", price: 499, products: ["ASTRON_FIN"] },
+  { id: "growth", name: "Growth", price: 999, products: ["ASTRON_FIN"] },
+];
+
+
+const subscriptions = new Map();
 const sessions = new Map(); 
 const codes = new Map(); 
 
@@ -91,6 +101,43 @@ app.post("/token", (req, res) => {
   );
 
   res.json({ access_token: accessToken, token_type: "Bearer", expires_in: 900 });
+});
+
+app.get("/plans", (req, res) => {
+  res.json({ plans: PLANS, products: PRODUCTS });
+});
+
+app.post("/subscribe", (req, res) => {
+  const { userId, planId, months = 1 } = req.body;
+  const plan = PLANS.find(p => p.id === planId);
+  if (!plan) return res.status(400).json({ message: "Invalid plan" });
+
+    const validTill = new Date(Date.now() + 5 * 60 * 1000);
+
+  subscriptions.set(userId, {
+    planId,
+    status: "ACTIVE",
+    validTill: validTill.toISOString(),
+    products: plan.products
+  });
+
+  res.json({ message: "Subscription activated", userId, planId, validTill });
+});
+
+app.get("/entitlements/:userId", (req, res) => {
+  const { userId } = req.params;
+  const sub = subscriptions.get(userId);
+
+  if (!sub) return res.json({ status: "NONE", products: [] });
+
+  const active = sub.status === "ACTIVE" && new Date(sub.validTill) > new Date();
+
+  res.json({
+    status: active ? "ACTIVE" : "EXPIRED",
+    products: active ? sub.products : [],
+    validTill: sub.validTill,
+    planId: sub.planId
+  });
 });
 
 app.listen(PORT, () => console.log(`Auth server running on :${PORT}`));

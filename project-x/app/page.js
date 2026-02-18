@@ -12,6 +12,10 @@ export default function Home() {
       <a href="/dashboard">
         <button>Go to Dashboard</button>
       </a>
+
+       <a href="/pricing">
+        <button>Subscription Plans</button>
+      </a>
     </div>
   );
 }
