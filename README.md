@@ -7,13 +7,13 @@ Project Structure
 
 SSO/
 │
-├── auth-server/   → Central authentication server (Node.js)
-├── project-a/     → Next.js application (Port 3001)
-├── project-x/     → Next.js application (Port 3000)
+├── auth-server/     → Central Authentication & Subscription Server (Node.js)
+├── project-x/       → Main SaaS Website (Port 3000)
+├── project-a/       → Product Application – Astron Financial (Port 3001)
 └── README.md
 
 
-How It Works
+How It Works (SSO)
 
 A user opens Project A or Project X.
 When login is required, the application redirects to the Auth Server.
@@ -24,6 +24,20 @@ The token is stored in an HTTP-only cookie.
 The user can access both applications without logging in again.
 
 This demonstrates centralized authentication and cross-application SSO.
+
+How It Works (SAAS)
+
+User opens Project X (Main SaaS Website).
+User logs in via Auth Server.
+After login, user can:
+View subscription
+Activate a plan (valid for 5 minutes in demo)
+User clicks “Go to Astron Financial”.
+Project A validates:
+JWT token
+Active subscription
+If subscription is valid → Access granted.
+If expired → Access denied.
 
 
 Local Setup
@@ -82,18 +96,31 @@ npm run dev
 Project X runs on:
 http://localhost:3000
 
-Testing the SSO
+Testing the SaaS Flow
 
 Open:
-http://localhost:3001/login
 
-Login with:
+http://localhost:3000
+
+
+Click Login with SSO.
+
+Login using:
+
 Email: demo@company.com
-
 Password: 123456
 
-After login, open:
-http://localhost:3000/dashboard
 
-You will not be asked to log in again.
+After login:
+
+Activate subscription.
+
+Click "Go to Astron Financial".
+
+You will access:
+
+http://localhost:3001/dashboard
+
+
+If subscription is active → Access granted.
 
